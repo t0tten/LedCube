@@ -11,7 +11,7 @@ LedCube::LedCube(Coordinate* coordinate, bool isMulticolor)
     this->ledArray = new bool[(this->coordinate->get2DSize() * this->amount_colors) + this->coordinate->getZ()];
 
     for (short z = 0; z < this->coordinate->getZ(); z++) {
-        this->ledArray[(this->coordinate->get2DSize() * this->amount_colors) + z] = true;
+        this->ledArray[z] = true;
     }
 }
 
@@ -21,40 +21,43 @@ LedCube::~LedCube()
     delete this->coordinate;
 }
 
-void LedCube::updateLight(Coordinate* coordinate, Color* color, short delayTime)
+void LedCube::updateLight(Coordinate* ledCoordinate, Color* color, short delayTime)
 {
-    short arr_pos = (coordinate->getY() * this->coordinate->getY()) + coordinate->getX();
-    this->updateLEDArray(arr_pos, coordinate->getZ(), color, true);
-    this->sendData();
+    short arr_pos = (ledCoordinate->getY() * this->coordinate->getY()) + ledCoordinate->getX();
+    short highestPin = this->updateLEDArray(arr_pos, ledCoordinate->getZ(), color, true);
+    this->sendData(highestPin);
     //delay(delayTime);
-    this->updateLEDArray(arr_pos, coordinate->getZ(), color, false);
+    this->updateLEDArray(arr_pos, ledCoordinate->getZ(), color, false);
 }
 
-void LedCube::updateLEDArray(short arr_pos, short level, Color* color, bool turnOn)
+short LedCube::updateLEDArray(short arr_pos, short level, Color* color, bool turnOn)
 {
+    short highestPin = (arr_pos * this->amount_colors) + (this->coordinate->getZ());
     if (this->ledIsMulticolor)
     {
-        short offset = this->coordinate->getX() * this->coordinate->getY();
-        if (color->getR() && arr_pos < this->coordinate->get2DSize())
+        if (color->getR() && (arr_pos + this->coordinate->getZ()) < ((this->coordinate->get2DSize() * this->amount_colors) + this->coordinate->getZ()))
         {
-            this->ledArray[arr_pos] = turnOn;
+            this->ledArray[highestPin] = turnOn;
         }
 
-        if (color->getG() && (arr_pos + offset) < (this->coordinate->get2DSize() * 2))
+        if (color->getG() && ((arr_pos + this->coordinate->getZ()) + 1) < ((this->coordinate->get2DSize() * this->amount_colors) + this->coordinate->getZ()))
         {
-            this->ledArray[arr_pos + offset] = turnOn;
+            highestPin = (arr_pos * this->amount_colors) + (this->coordinate->getZ()) + 1;
+            this->ledArray[highestPin] = turnOn;
         }
 
-        if (color->getB() && (arr_pos + (offset * 2)) < (this->coordinate->get2DSize() * 3))
+        if (color->getB() && ((arr_pos + this->coordinate->getZ()) + 2) < ((this->coordinate->get2DSize() * this->amount_colors) + this->coordinate->getZ()))
         {
-            this->ledArray[arr_pos + (offset * 2)] = turnOn;
+            highestPin = (arr_pos * this->amount_colors) + (this->coordinate->getZ()) + 2;
+            this->ledArray[highestPin] = turnOn;
         }
     }
     else
     {
-        this->ledArray[arr_pos] = turnOn;
+        this->ledArray[highestPin] = turnOn;
     }
-    this->ledArray[(this->coordinate->get2DSize() * this->amount_colors) + level] = !turnOn;
+    this->ledArray[level] = !turnOn;
+    return highestPin;
 }
 
 short LedCube::getSize()
@@ -62,17 +65,16 @@ short LedCube::getSize()
     return this->coordinate->get3DSize();
 }
 
-void LedCube::sendData()
+void LedCube::sendData(short highestPin)
 {
-    short offset = this->coordinate->getX() * this->coordinate->getY();
     for (short color = 0; color < this->amount_colors; color++)
     {
         for (short y = 0; y < this->coordinate->getY(); y++)
         {
             for (short x = 0; x < this->coordinate->getX(); x++)
             {
-                short arr_pos = ((y * this->coordinate->getY()) + x) + (offset * color);
-                std::cout << this->ledArray[arr_pos] << " ";
+                short arr_pos = ((y * this->coordinate->getY()) + (x)) * this->amount_colors + color; // * this->amount_colors));// * color; //this->amount_colors));
+                std::cout << this->ledArray[arr_pos + this->coordinate->getZ()] << " ";
             }
             std::cout << std::endl;
         }
@@ -80,12 +82,14 @@ void LedCube::sendData()
     }
 
     for (short z = 0; z < this->coordinate->getZ(); z++) {
-        std::cout << this->ledArray[(this->coordinate->get2DSize() * this->amount_colors) + z] << " ";
+        std::cout << this->ledArray[z] << " ";
     }
     std::cout << std::endl;
 
     std::cout << "To send: ";
-    for (short index = 0; index < (this->coordinate->get2DSize() * this->amount_colors) + this->coordinate->getZ(); index++)
+    short allPins = (this->coordinate->get2DSize() * this->amount_colors) + this->coordinate->getZ();
+    short stop = (highestPin < allPins) ? (highestPin + 1) : allPins;
+    for (short index = 0; index < stop; index++)
     {
         std::cout << this->ledArray[index];
     }

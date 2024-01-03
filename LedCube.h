@@ -3,7 +3,6 @@
 
 #include "containers/Coordinate.h"
 #include "containers/Color.h"
-//#include "instructions/LedData.h"
 #include <string>
 
 class LedCube {
@@ -14,8 +13,8 @@ class LedCube {
         bool ledIsMulticolor;
 
         /* FUNCTIONS */
-        void sendData();
-        void updateLEDArray(short arr_pos, short level, Color* color, bool turnOn);
+        void sendData(short highestPin);
+        short updateLEDArray(short arr_pos, short level, Color* color, bool turnOn);
 
     public:
         LedCube(Coordinate* coordinate, bool isMulticolor);
