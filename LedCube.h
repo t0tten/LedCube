@@ -11,13 +11,16 @@ class LedCube {
         bool* ledArray;
         short amount_colors;
         bool ledIsMulticolor;
+        bool sideOptimization;
 
         /* FUNCTIONS */
-        void sendData(short highestPin);
-        short updateLEDArray(short arr_pos, short level, Color* color, bool turnOn);
+        void sendData(short* threshHoldPins);
+        short* updateLEDArray(short arr_pos, short level, Color* color, bool turnOn);
+        void fillFromRight(short allPins, short lowest);
+        void fillFromLeft(short allPins, short highestPin);
 
     public:
-        LedCube(Coordinate* coordinate, bool isMulticolor);
+        LedCube(Coordinate* coordinate, bool isMulticolor, bool useSideOptimization);
         ~LedCube();
 
         void updateLight(Coordinate* coordinate, Color* color, short delayTime);
