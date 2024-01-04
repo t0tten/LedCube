@@ -100,15 +100,23 @@ LedData* FileManagement::processLedData(const std::string& s)
         if (isDigits)
         {
             short delayPos = 3;
-            Coordinate* coordinate = new Coordinate(std::stoi(items.at(0)), std::stoi(items.at(1)), std::stoi(items.at(2)));
-            Color* color = nullptr;
-            if (items.size() == 7)
-            {
-                delayPos = 6;
-                color = new Color(std::stoi(items.at(3)), std::stoi(items.at(4)), std::stoi(items.at(5)));
-            }
+            short x = std::stoi(items.at(0));
+            short y = std::stoi(items.at(1));
+            short z = std::stoi(items.at(2));
 
-            return new LedData(coordinate, color, std::stoi(items.at(delayPos)));
+            if (x > 0 && y > 0 && z > 0)
+            {
+                Coordinate *coordinate = new Coordinate(x - 1, y - 1, z - 1);
+                Color *color = nullptr;
+                if (items.size() == 7)
+                {
+                    delayPos = 6;
+                    color = new Color(std::stoi(items.at(3)), std::stoi(items.at(4)), std::stoi(items.at(5)));
+                }
+
+
+                return new LedData(coordinate, color, std::stoi(items.at(delayPos)));
+            }
         }
     }
     return nullptr;

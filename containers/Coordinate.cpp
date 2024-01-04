@@ -43,5 +43,5 @@ short Coordinate::get3DSize()
 
 void Coordinate::print()
 {
-    std::cout << "Coordinate: (x: " << this->getX() << ", y: " << this->getY() << ", z: " << this->getZ() << ")" << std::endl;
+    std::cout << "Coordinate: (x: " << this->getX() + 1 << ", y: " << this->getY() + 1 << ", z: " << this->getZ() + 1<< ")" << std::endl;
 }

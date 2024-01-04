@@ -11,16 +11,19 @@ class LedCube {
         bool* ledArray;
         short amount_colors;
         bool ledIsMulticolor;
-        bool sideOptimization;
+        bool bidirectional;
+        bool splitOutput;
 
         /* FUNCTIONS */
-        void sendData(short* threshHoldPins);
+        void sendData(Color* color, short* threshHoldPins);
         short* updateLEDArray(short arr_pos, short level, Color* color, bool turnOn);
-        void fillFromRight(short allPins, short lowest);
-        void fillFromLeft(short allPins, short highestPin);
+        void fillFromRight(Color* color, short allPins, short lowest);
+        void fillFromLeft(Color* color, short allPins, short highestPin);
+        void sendToShiftRegister(short index, bool* array, short start, short stop);
+        void sendToShiftRegisterRight(short shiftRegister, bool* array, short start, short stop);
 
     public:
-        LedCube(Coordinate* coordinate, bool isMulticolor, bool useSideOptimization);
+        LedCube();
         ~LedCube();
 
         void updateLight(Coordinate* coordinate, Color* color, short delayTime);
