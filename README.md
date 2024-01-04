@@ -2,23 +2,26 @@
 
 ## Tutorial - sequence.cube
 ### REPEAT
-First argument: int
-Number of following rows to repeat
-Second argument: int
-The total duration of the repeat
+First argument: <b>int</b><br />
+Following rows to repeat.
 
-Example: repeat(1,4):
+Second argument: <b>int</b><br />
+The total duration of the repeat.
+
+Repeats can consist of repeats.
+
+<i>Example: repeat(1,4):</i>
 
 ### LED
 #### With color
-First three (pos 1-2-3) is coordinated (x, y, z) where 1 is the first.
-Second three (pos 4-5-6) is the color (R, G, B) where 1 is on, 0 is off.
-The last argument (pos 7) is delay in milliseconds.
+First three <i>(position 1-2-3)</i> is coordinated (<b>x, y, z</b>) where <b>1</b> is the first.<br />
+Second three <i>(position 4-5-6)</i> is the color (<b>R, G, B</b>) where <b>1</b> is on, <b>0</b> is off.<br />
+The last argument <i>(position 7)</i> is <b>delay</b> in <u>milliseconds</u>.<br />
 
-Example: 2,1,1,1,1,1,1
+<i>Example: 2,1,1,1,1,1,1</i>
 
 #### Without color
-First three (pos 1-2-3) is coordinated (x, y, z) where 1 is the first.
-The last argument (pos 4) is delay in milliseconds.
+First three <i>(position 1-2-3)</i> is coordinated (<b>x, y, z</b>) where <b>1</b> is the first.<br />
+The last argument <i>(position 4)</i> is <b>delay</b> in <u>milliseconds</u>.<br />
 
-Example: 2,1,1,1
+<i>Example: 2,1,1,1</i>
