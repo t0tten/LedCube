@@ -7,7 +7,7 @@ using namespace std;
 int main ()
 {
     // Setup
-    FileManagement* fileManagement = new FileManagement("input/file.cube");
+    FileManagement* fileManagement = new FileManagement("input/sequence.cube");
     LedCube* ledCube = new LedCube();
 
     // Loop

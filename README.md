@@ -1,6 +1,6 @@
 # LedCube
 
-## Tutorial
+## Tutorial - sequence.cube
 ### REPEAT
 First argument: int
 Number of following rows to repeat
