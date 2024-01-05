@@ -1,5 +1,4 @@
 #include "LedData.h"
-#include <iostream>
 
 LedData::LedData(Coordinate* coordinate, Color* color, short duration): Instruction(duration)
 {
@@ -25,13 +24,13 @@ Color* LedData::getColor()
 
 void LedData::print()
 {
-    std::cout << std::endl;
+    this->log->info("");
     this->coordinate->print();
     if (this->color != nullptr)
     {
         this->color->print();
     }
-    std::cout << "Delay: " << this->duration << "ms" << std::endl;
+    this->log->info("Delay: " + std::to_string(this->duration) + "ms");
 }
 
 bool LedData::execute(LedCube* ledCube)

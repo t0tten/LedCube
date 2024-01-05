@@ -3,6 +3,7 @@
 
 #include "containers/Coordinate.h"
 #include "containers/Color.h"
+#include "Log.h"
 #include <string>
 
 class LedCube {
@@ -13,6 +14,7 @@ class LedCube {
         bool ledIsMulticolor;
         bool bidirectional;
         bool splitOutput;
+        Log* log;
 
         /* FUNCTIONS */
         void sendData(Color* color, short* threshHoldPins);

@@ -1,11 +1,12 @@
 #include "Color.h"
-#include <iostream>
+#include "../Log.h"
 
 Color::Color(bool r, bool g, bool b)
 {
     this->r = r;
     this->g = g;
     this->b = b;
+    this->log = Log::GetInstance();
 }
 
 Color::~Color()
@@ -30,5 +31,5 @@ bool Color::getB()
 
 void Color::print()
 {
-    std::cout << "Color: (r: " << this->getR() << ", g: " << this->getG() << ", b: " << this->getB() << ")" << std::endl;
+    this->log->info("Color: (r: " + std::to_string(this->getR()) + ", g: " + std::to_string(this->getG()) + ", b: " + std::to_string(this->getB()) + ")");
 }

@@ -1,5 +1,4 @@
 #include "Coordinate.h"
-#include <iostream>
 
 Coordinate::Coordinate(short x, short y, short z)
 {
@@ -9,6 +8,7 @@ Coordinate::Coordinate(short x, short y, short z)
 
     this->size2D = this->x * this->y;
     this->size3D = this->x * this->y * this->z;
+    this->log = Log::GetInstance();
 }
 
 Coordinate::~Coordinate()
@@ -43,5 +43,5 @@ short Coordinate::get3DSize()
 
 void Coordinate::print()
 {
-    std::cout << "Coordinate: (x: " << this->getX() + 1 << ", y: " << this->getY() + 1 << ", z: " << this->getZ() + 1<< ")" << std::endl;
+    this->log->info("Coordinate: (x: " + std::to_string(this->getX() + 1) + ", y: " + std::to_string(this->getY() + 1) + ", z: " + std::to_string(this->getZ() + 1) + ")");
 }

@@ -1,36 +1,37 @@
 #include "LedCube.h"
+#include "Log.h"
 #include <string>
-#include <iostream>
 
 /* SETTINGS */
-#define X_SIZE                  8
-#define Y_SIZE                  8
-#define Z_SIZE                  8
+#define X_SIZE                  3
+#define Y_SIZE                  3
+#define Z_SIZE                  3
 #define IS_MULTICOLOR           true
-#define IS_BIDIRECTIONAL        false    // If active - add +1 to PIN_LAYOUT (RIGHT)
-
+#define IS_BIDIRECTIONAL        false               // If active - add +1 to PIN_LAYOUT INSTRUCTION (RIGHT)
 /* SHIFT REGISTERS */
-#define RESET                   0
-#define ENABLE                  1
-#define STORE                   2
-#define SEND                    3
-#define RIGHT                   4       // Used when IS_BIDIRECTIONAL is active
-
-#define SHIFT_REGISTERS         3       // Add the corresponding pin layout below
-const short PIN_LAYOUT[SHIFT_REGISTERS][4] = {
-        {0, 1, 2, 3},
-        {5, 6, 7, 8},
-        {10, 11, 12, 13}
+#define SHIFT_REGISTERS         1                   // Add the corresponding shift register pin layout below
+#define INSTRUCTIONS            4
+const short PIN_LAYOUT[SHIFT_REGISTERS][INSTRUCTIONS] = {
+        {8, 7, 4, 2},          // RESET, ENABLE, STORE, SEND, [RIGHT]
+        //{5, 6, 7, 8},
+        //{10, 11, 12, 13}
 };
+#define DATA                    0
+#define CLOCK                   1
+#define LATCH                   2
+#define RESET                   3
+#define RIGHT                   4                   // Used when IS_BIDIRECTIONAL is active
 
 LedCube::LedCube()
 {
+    this->log = Log::GetInstance();
     this->coordinate = new Coordinate(X_SIZE, Y_SIZE, Z_SIZE);
-    std::cout << "Creating cube with size of: " << this->coordinate->get3DSize();
-    std::cout << " (x: " << this->coordinate->getX() << ", y: " << this->coordinate->getY() << ", z: " << this->coordinate->getZ() << ")" << std::endl;
+    this->log->info("Creating cube with size of: " + std::to_string(this->coordinate->get3DSize()));
+    this->log->info(" (x: " + std::to_string(this->coordinate->getX()) + ", y: " + std::to_string(this->coordinate->getY()) + ", z: "
+                  + std::to_string(this->coordinate->getZ()) + ")");
     this->splitOutput = (SHIFT_REGISTERS > 1) ? true : false;
     this->ledIsMulticolor = IS_MULTICOLOR;
-    this->bidirectional = IS_BIDIRECTIONAL;
+    this->bidirectional = IS_BIDIRECTIONAL && (INSTRUCTIONS > 4);
     this->amount_colors = (this->ledIsMulticolor && !this->splitOutput) ? 3 : 1;
 
     this->ledArray = new bool[(this->coordinate->get2DSize() * this->amount_colors) + this->coordinate->getZ()];
@@ -38,9 +39,11 @@ LedCube::LedCube()
     for (short z = 0; z < this->coordinate->getZ(); z++) {
         this->ledArray[z] = true;
     }
-    std::cout << "Number of outputs: " << (this->coordinate->get2DSize() * this->amount_colors) + this->coordinate->getZ() << std::endl;
-    std::cout << "Cube is multicolor: " << this->ledIsMulticolor << std::endl;
-    std::cout << "Utilize side shift optimization: " << this->bidirectional << std::endl;
+
+    short numOfOutputs = (this->coordinate->get2DSize() * this->amount_colors) + this->coordinate->getZ();
+    this->log->info("Number of outputs: " + std::to_string(numOfOutputs));
+    this->log->info("Cube is multicolor: " + std::to_string(this->ledIsMulticolor));
+    this->log->info("Utilize side shift optimization: " + std::to_string(this->bidirectional));
 }
 
 LedCube::~LedCube()
@@ -109,24 +112,22 @@ short LedCube::getSize()
 
 void LedCube::sendData(Color* color, short* threshHoldPins)
 {
-    for (short color = 0; color < this->amount_colors; color++)
-    {
-        for (short y = 0; y < this->coordinate->getY(); y++)
-        {
-            for (short x = 0; x < this->coordinate->getX(); x++)
-            {
+    std::string matrix = "";
+    for (short color = 0; color < this->amount_colors; color++) {
+        for (short y = 0; y < this->coordinate->getY(); y++) {
+            for (short x = 0; x < this->coordinate->getX(); x++) {
                 short arr_pos = ((y * this->coordinate->getY()) + (x)) * this->amount_colors + color;
-                std::cout << this->ledArray[arr_pos + this->coordinate->getZ()] << " ";
+                matrix += std::to_string(this->ledArray[arr_pos + this->coordinate->getZ()]) + " ";
             }
-            std::cout << std::endl;
+            matrix += "\n";
         }
-        std::cout << std::endl;
+        matrix += "\n";
     }
 
     for (short z = 0; z < this->coordinate->getZ(); z++) {
-        std::cout << this->ledArray[z] << " ";
+        matrix += std::to_string(this->ledArray[z]) + " ";
     }
-    std::cout << std::endl;
+    this->log->info(matrix);
 
     short allPins = (this->coordinate->get2DSize() * this->amount_colors) + this->coordinate->getZ();
     /*
@@ -152,20 +153,18 @@ void LedCube::sendData(Color* color, short* threshHoldPins)
     delete threshHoldPins;
 }
 
-void LedCube::fillFromRight(Color* color, short allPins, short lowest)
-{
+void LedCube::fillFromRight(Color* color, short allPins, short lowest) {
     /* Reset all shift registers */
-    for (short shiftRegister = 0; shiftRegister < SHIFT_REGISTERS; shiftRegister++)
-    {
-        std::cout << "RESET on pin: " << PIN_LAYOUT[shiftRegister][RESET] << std::endl;
+    for (short shiftRegister = 0; shiftRegister < SHIFT_REGISTERS; shiftRegister++) {
+        this->log->debug("RESET on pin: " + std::to_string(PIN_LAYOUT[shiftRegister][RESET]));
     }
 
     std::string output = "";
+    this->log->debug("");
     short stop = (this->splitOutput) ? lowest : (lowest - this->coordinate->getZ());
     for (short index = (allPins - 1); index >= stop; index--) {
         output += this->ledArray[index] ? "1" : "0";
     }
-    std::cout << std::endl;
     short data = 0;
     if (this->splitOutput)
     {
@@ -176,50 +175,52 @@ void LedCube::fillFromRight(Color* color, short allPins, short lowest)
             {
                 outputPlus += "0";
             }
-            data += (allPins - lowest + 1) + this->coordinate->getZ();
-            std::cout << "DATA: " << data << std::endl;
-            std::cout << "Sending to RED from RIGHT: "  << output << outputPlus << std::endl;
+            data += (allPins - lowest) + this->coordinate->getZ();
+            this->log->debug("");
+            this->log->debug("DATA: " + std::to_string(data));
+            this->log->debug("Sending to RED from RIGHT: "  + output + outputPlus);
             this->sendToShiftRegisterRight(0, this->ledArray, allPins, lowest - this->coordinate->getZ());
-            std::cout << std::endl;
         }
         if (color->getG())
         {
-            data += allPins - lowest + 1;
-            std::cout << "Sending to GREEN from RIGHT: "  << output << std::endl;
+            data += allPins - lowest;
+            this->log->debug("");
+            this->log->debug("Sending to GREEN from RIGHT: " + output);
             this->sendToShiftRegisterRight(1, this->ledArray, allPins, lowest);
-            std::cout << std::endl;
         }
         if (color->getB())
         {
-            data += allPins - lowest + 1;
-            std::cout << "Sending to BLUE from RIGHT: "  << output << std::endl;
+            data += allPins - lowest;
+            this->log->debug("");
+            this->log->debug("Sending to BLUE from RIGHT: " + output);
             this->sendToShiftRegisterRight(2, this->ledArray, allPins, lowest);
-            std::cout << std::endl;
         }
     }
     else {
-        data += (allPins - lowest + 1) + this->coordinate->getZ();
-        std::cout << "Sending from RIGHT: "  << output << std::endl;
+        data += (allPins - lowest) + this->coordinate->getZ();
+        this->log->debug("");
+        this->log->debug("Sending from RIGHT: " + output);
         this->sendToShiftRegisterRight(0, this->ledArray, allPins, lowest - this->coordinate->getZ());
-        std::cout << std::endl;
     }
 
-    std::cout << "To send from left: ";
+    this->log->debug("");
+    std::string dataArray = "";
     for (short z = 0; z < this->coordinate->getZ(); z++) {
-        std::cout << this->ledArray[z];
+        dataArray += std::to_string(this->ledArray[z]);
     }
-    std::cout << std::endl;
+    this->log->debug("To send from left: " + dataArray);
+    this->log->debug("");
+
     data += this->coordinate->getZ();
     this->sendToShiftRegister(0, this->ledArray, 0, this->coordinate->getZ());
 
-    std::cout << std::endl;
-    std::cout << "Data to send: " << data << std::endl;
+    this->log->info("Data to send: " + std::to_string(data));
 }
 void LedCube::fillFromLeft(Color* color, short allPins, short highestPin)
 {
-    std::string output = "";
     short stop = (highestPin < allPins) ? (highestPin + 1) : allPins;
     short start = (this->splitOutput) ? this->coordinate->getZ() : 0;
+    std::string output = "";
     for (short index = start; index < stop; index++) {
         output += (this->ledArray[index]) ? "1" : "0";
     }
@@ -227,74 +228,94 @@ void LedCube::fillFromLeft(Color* color, short allPins, short highestPin)
     /* Reset all shift registers */
     for (short shiftRegister = 0; shiftRegister < SHIFT_REGISTERS; shiftRegister++)
     {
-        std::cout << "RESET on pin: " << PIN_LAYOUT[shiftRegister][RESET] << std::endl;
+        this->log->debug("RESET on pin: " + std::to_string(PIN_LAYOUT[shiftRegister][RESET]));
     }
 
     short data = 0;
     if (this->splitOutput)
     {
+
         std::string layers = "";
-        for (short index = 0; index < this->coordinate->getZ(); index++)
-        {
+        for (short index = 0; index < this->coordinate->getZ(); index++) {
             layers += (this->ledArray[index]) ? "1" : "0";
         }
-        std::cout << "Sending to RED: " << layers << std::endl;
+        this->log->debug("");
+        this->log->debug("Sending to RED: " + layers);
+
         this->sendToShiftRegister(0, this->ledArray, 0, this->coordinate->getZ());
         data += this->coordinate->getZ();
-        std::cout << std::endl;
+
         if (color->getR())
         {
-            data += output.size();
-            std::cout << "Sending to RED: "  << output << std::endl;
-            this->sendToShiftRegister(0, this->ledArray, this->coordinate->getZ(), stop);
-            std::cout << std::endl;
+            this->log->debug("");
+            this->log->debug("Sending to RED: " + output);
+            this->sendToShiftRegister(0, this->ledArray, start, stop);
+            data += stop - start;
         }
         if (color->getG())
         {
-            data += output.size();
-            std::cout << "Sending to GREEN: " << output << std::endl;
-            this->sendToShiftRegister(1, this->ledArray, this->coordinate->getZ(), stop);
-            std::cout << std::endl;
+            this->log->debug("");
+            this->log->debug("Sending to GREEN: " + output);
+            this->sendToShiftRegister(1, this->ledArray, start, stop);
+            data += stop - start;
         }
         if (color->getB())
         {
-            data += output.size();
-            std::cout << "Sending to BLUE: " << output << std::endl;
-            this->sendToShiftRegister(2, this->ledArray, this->coordinate->getZ(), stop);
-            std::cout << std::endl;
+            this->log->debug("");
+            this->log->debug("Sending to BLUE: " + output);
+            this->sendToShiftRegister(2, this->ledArray, start, stop);
+            data += stop - start;
         }
     }
     else
     {
-        std::cout << "Sending: " << output << std::endl;
-        data += output.size();
+        this->log->debug("");
+        this->log->debug("Sending: " + output);
         this->sendToShiftRegister(0, this->ledArray, start, stop);
-        std::cout << std::endl;
+        data += stop - start;
     }
-    std::cout << "Data to send: " << data << std::endl;
+    this->log->info("Data to send: " + std::to_string(data));
 }
 
 void LedCube::sendToShiftRegister(short shiftRegister, bool* array, short start, short stop)
 {
     for (short index = start; index < stop; index++) {
         if (array[index]) {
-            std::cout << "ENABLE on pin: " << PIN_LAYOUT[shiftRegister][ENABLE] << std::endl;
+            this->log->debug("DATA on pin: " + std::to_string(PIN_LAYOUT[shiftRegister][DATA]));
+            //digitalWrite(PIN_LAYOUT[shiftRegister][DATA], 1);
         }
-        std::cout << "STORE on pin: " << PIN_LAYOUT[shiftRegister][STORE] << std::endl;
+        this->log->debug("CLOCK on pin: " + std::to_string(PIN_LAYOUT[shiftRegister][CLOCK]));
+        //digitalWrite(PIN_LAYOUT[shiftRegister][CLOCK], 1);
+        //digitalWrite(PIN_LAYOUT[shiftRegister][CLOCK], 0);
+        if (array[index]) {
+            //digitalWrite(PIN_LAYOUT[shiftRegister][DATA], 0);
+        }
     }
-    std::cout << "SEND on pin: " << PIN_LAYOUT[shiftRegister][SEND] << std::endl;
+    this->log->debug("LATCH on pin: " + std::to_string(PIN_LAYOUT[shiftRegister][LATCH]));
+    //digitalWrite(PIN_LAYOUT[shiftRegister][LATCH], 1);
+    //digitalWrite(PIN_LAYOUT[shiftRegister][LATCH], 0);
 }
 
 void LedCube::sendToShiftRegisterRight(short shiftRegister, bool* array, short start, short stop)
 {
     for (short index = start - 1; index >= stop; index--) {
         if (array[index]) {
-            std::cout << "ENABLE on pin: " << PIN_LAYOUT[shiftRegister][ENABLE] << std::endl;
+            this->log->debug("DATA on pin: " + std::to_string(PIN_LAYOUT[shiftRegister][DATA]));
+            //digitalWrite(PIN_LAYOUT[shiftRegister][DATA], 1);
         }
-        std::cout << "STORE on pin: " << PIN_LAYOUT[shiftRegister][STORE] << std::endl;
+        this->log->debug("CLOCK on pin: " + std::to_string(PIN_LAYOUT[shiftRegister][CLOCK]));
+        //digitalWrite(PIN_LAYOUT[shiftRegister][CLOCK], 1);
+        //digitalWrite(PIN_LAYOUT[shiftRegister][CLOCK], 0);
+        if (array[index]) {
+            //digitalWrite(PIN_LAYOUT[shiftRegister][DATA], 0);
+        }
     }
-    std::cout << "Enable RIGHT on pin: " << PIN_LAYOUT[shiftRegister][RIGHT] << std::endl;
-    std::cout << "SEND on pin: " << PIN_LAYOUT[shiftRegister][SEND] << std::endl;
+    this->log->debug("Enable RIGHT on pin: " + std::to_string(PIN_LAYOUT[shiftRegister][RIGHT]));
+    //digitalWrite(PIN_LAYOUT[shiftRegister][RIGHT], 1);
+    this->log->debug("LATCH on pin: " + std::to_string(PIN_LAYOUT[shiftRegister][LATCH]));
+    //digitalWrite(PIN_LAYOUT[shiftRegister][LATCH], 1);
+    //digitalWrite(PIN_LAYOUT[shiftRegister][LATCH], 0);
+    //digitalWrite(PIN_LAYOUT[shiftRegister][RIGHT], 0);
 }
 
 bool LedCube::isMulticolor()

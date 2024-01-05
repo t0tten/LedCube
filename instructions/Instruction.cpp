@@ -4,14 +4,10 @@ Instruction::Instruction(short duration)
 {
     this->duration = duration;
     this->timeLeft = duration;
+    this->log = Log::GetInstance();
 }
 
 Instruction::~Instruction()
-{
-
-}
-
-void Instruction::print()
 {
 
 }

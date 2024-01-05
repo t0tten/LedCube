@@ -1,5 +1,4 @@
 #include "Repeat.h"
-#include <iostream>
 
 Repeat::Repeat(short amount, short duration): Instruction(duration)
 {
@@ -16,15 +15,6 @@ Repeat::~Repeat()
         delete this->instructionArray[index];
     }
     delete this->instructionArray;
-}
-
-void Repeat::print()
-{
-    std::cout << "Repeat(" << this->amount_instructions << ", " << this->duration << "): " << std::endl;
-    for (short index = 0; index < this->amount_current; index++)
-    {
-        this->instructionArray[index]->print();
-    }
 }
 
 void Repeat::addInstruction(Instruction* instruction)
@@ -67,6 +57,15 @@ short Repeat::getAmount()
 short Repeat::getCurrentAmount()
 {
     return this->amount_current;
+}
+
+void Repeat::print()
+{
+    this->log->info("Repeat(" + std::to_string(this->amount_instructions) + ", " + std::to_string(this->duration) + "): ");
+    for (short index = 0; index < this->amount_current; index++)
+    {
+        this->instructionArray[index]->print();
+    }
 }
 
 bool Repeat::execute(LedCube* ledCube)

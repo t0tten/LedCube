@@ -3,14 +3,14 @@
 #include "containers/Color.h"
 #include "containers/Coordinate.h"
 #include "instructions/Instruction.h"
-#include <iostream>
 #include <vector>
 #include <string>
 #include <regex>
 
 FileManagement::FileManagement(std::string filepath)
 {
-    std::cout << "Opening file: " << filepath << std::endl;
+    this->log = Log::GetInstance();
+    this->log->info("Opening file: " + filepath);
     this->myfile.open(filepath);
     this->fileIsOpen = this->myfile.is_open();
 }

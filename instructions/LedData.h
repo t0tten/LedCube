@@ -16,7 +16,7 @@ class LedData: public Instruction {
 
         Coordinate* getCoordinate();
         Color* getColor();
-        void print();
+        virtual void print();
         virtual bool execute(LedCube* ledCube);
 };
 

@@ -19,7 +19,7 @@ public:
     short getAmount();
     short getCurrentAmount();
 
-    void print();
+    virtual void print();
     virtual bool execute(LedCube* ledCube);
 };
 

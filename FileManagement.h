@@ -4,16 +4,17 @@
 #include "instructions/Instruction.h"
 #include "instructions/LedData.h"
 #include "instructions/Repeat.h"
+#include "Log.h"
 
 #include <string>
 #include <vector>
-#include <iostream>
 #include <fstream>
 
 class FileManagement {
 private:
     bool fileIsOpen;
     std::ifstream myfile;
+    Log* log;
 
     /* FUNCTIONS */
     std::vector<std::string> split(std::string s, std::string delimiter);
