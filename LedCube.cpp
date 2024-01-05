@@ -44,6 +44,14 @@ LedCube::LedCube()
     this->log->info("Number of outputs: " + std::to_string(numOfOutputs));
     this->log->info("Cube is multicolor: " + std::to_string(this->ledIsMulticolor));
     this->log->info("Utilize side shift optimization: " + std::to_string(this->bidirectional));
+
+    for (short shiftRegister = 0; shiftRegister < SHIFT_REGISTERS; shiftRegister++)
+    {
+        for (short pinIndex = 0; pinIndex < INSTRUCTIONS; pinIndex++)
+        {
+            //pinMode(PIN_LAYOUT[shiftRegister][pinIndex], OUTPUT);
+        }
+    }
 }
 
 LedCube::~LedCube()
@@ -157,6 +165,8 @@ void LedCube::fillFromRight(Color* color, short allPins, short lowest) {
     /* Reset all shift registers */
     for (short shiftRegister = 0; shiftRegister < SHIFT_REGISTERS; shiftRegister++) {
         this->log->debug("RESET on pin: " + std::to_string(PIN_LAYOUT[shiftRegister][RESET]));
+        //digitalWrite(PIN_LAYOUT[shiftRegister][RESET], 1);
+        //digitalWrite(PIN_LAYOUT[shiftRegister][RESET], 0);
     }
 
     std::string output = "";
@@ -229,6 +239,8 @@ void LedCube::fillFromLeft(Color* color, short allPins, short highestPin)
     for (short shiftRegister = 0; shiftRegister < SHIFT_REGISTERS; shiftRegister++)
     {
         this->log->debug("RESET on pin: " + std::to_string(PIN_LAYOUT[shiftRegister][RESET]));
+        //digitalWrite(PIN_LAYOUT[shiftRegister][RESET], 1);
+        //digitalWrite(PIN_LAYOUT[shiftRegister][RESET], 0);
     }
 
     short data = 0;
