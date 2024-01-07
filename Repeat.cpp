@@ -59,17 +59,9 @@ short Repeat::getCurrentAmount()
     return this->amount_current;
 }
 
-void Repeat::print()
-{
-    this->log->info("Repeat(" + std::to_string(this->amount_instructions) + ", " + std::to_string(this->duration) + "): ");
-    for (short index = 0; index < this->amount_current; index++)
-    {
-        this->instructionArray[index]->print();
-    }
-}
-
 bool Repeat::execute(LedCube* ledCube)
 {
+    this->timeLeft = this->duration;
     while (this->shouldRepeat()) {
         for (short index = 0; index < this->getCurrentAmount(); index++) {
             Instruction* instruction = this->getNextInstruction();

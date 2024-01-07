@@ -2,6 +2,7 @@
 #define REPEAT_H
 
 #include "Instruction.h"
+#include "Arduino.h"
 
 class Repeat: public Instruction {
 private:
@@ -19,7 +20,6 @@ public:
     short getAmount();
     short getCurrentAmount();
 
-    virtual void print();
     virtual bool execute(LedCube* ledCube);
 };
 

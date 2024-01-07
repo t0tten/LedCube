@@ -2,8 +2,9 @@
 #define LED_DATA_H
 
 #include "Instruction.h"
-#include "../containers/Coordinate.h"
-#include "../containers/Color.h"
+#include "Coordinate.h"
+#include "Color.h"
+#include "Arduino.h"
 
 class LedData: public Instruction {
     private:
@@ -16,7 +17,6 @@ class LedData: public Instruction {
 
         Coordinate* getCoordinate();
         Color* getColor();
-        virtual void print();
         virtual bool execute(LedCube* ledCube);
 };
 

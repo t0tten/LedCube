@@ -1,33 +1,22 @@
 #ifndef FILE_MANAGEMENT_H
 #define FILE_MANAGEMENT_H
 
-#include "instructions/Instruction.h"
-#include "instructions/LedData.h"
-#include "instructions/Repeat.h"
-#include "Log.h"
-
-#include <string>
-#include <vector>
-#include <fstream>
+#include "Instruction.h"
+#include "LedData.h"
+#include "Repeat.h"
+#include "Coordinate.h"
+#include "Arduino.h"
+#include "Color.h"
 
 class FileManagement {
 private:
     bool fileIsOpen;
-    std::ifstream myfile;
-    Log* log;
+    Instruction** file;
 
-    /* FUNCTIONS */
-    std::vector<std::string> split(std::string s, std::string delimiter);
-    bool isDigit(const std::string& s);
-
-    LedData* processLedData(const std::string& s);
-    Repeat* processRepeat(const std::string& s);
-
-    Instruction* translate(const std::string& s);
-    bool match(std::string str, std::string reg);
+    short fileSize, currentIndex;
 
 public:
-    FileManagement(std::string filepath);
+    FileManagement(String filepath);
     ~FileManagement();
 
     bool isOpen();

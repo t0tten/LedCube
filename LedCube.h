@@ -1,28 +1,23 @@
 #ifndef LED_CUBE_H
 #define LED_CUBE_H
 
-#include "containers/Coordinate.h"
-#include "containers/Color.h"
-#include "Log.h"
-#include <string>
+#include "Coordinate.h"
+#include "Color.h"
+#include "Arduino.h"
 
 class LedCube {
     private:
         Coordinate* coordinate;
         bool* ledArray;
+        bool* levelArray;
+
         short amount_colors;
         bool ledIsMulticolor;
-        bool bidirectional;
         bool splitOutput;
-        Log* log;
 
         /* FUNCTIONS */
-        void sendData(Color* color, short* threshHoldPins);
-        short* updateLEDArray(short arr_pos, short level, Color* color, bool turnOn);
-        void fillFromRight(Color* color, short allPins, short lowest);
-        void fillFromLeft(Color* color, short allPins, short highestPin);
-        void sendToShiftRegister(short index, bool* array, short start, short stop);
-        void sendToShiftRegisterRight(short shiftRegister, bool* array, short start, short stop);
+        void sendData(Color* color);
+        void updateArrays(short arr_pos, short level, Color* color, bool turnOn);
 
     public:
         LedCube();
@@ -30,10 +25,6 @@ class LedCube {
 
         void updateLight(Coordinate* coordinate, Color* color, short delayTime);
         short getSize();
-
-        void showErrorSign();
-
-        bool isMulticolor();
 };
 
 #endif //LED_CUBE_H
